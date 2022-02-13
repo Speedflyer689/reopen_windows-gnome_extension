@@ -1,0 +1,8 @@
+{
+  "name": "Reopen Windows On Login",
+  "description": "Reopens the windows that were open before logging out",
+  "uuid": "ReopenWindiows@speedflyer689@gmail.com",
+  "shell-version": [
+    "3.38"
+  ]
+}
