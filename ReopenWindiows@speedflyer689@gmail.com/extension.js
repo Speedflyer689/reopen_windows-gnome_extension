@@ -70,7 +70,7 @@ class windows extends PanelMenu.Button {
         box.add(check);
         item.actor.add_actor(box);
         this.menu.addMenuItem(item);
-	box.actor.connect('button-release-event', saveWindows);
+	item.actor.connect('button-release-event', saveWindows);
         check.actor.connect('button-release-event', buttonPress);
 	}
 
@@ -79,7 +79,7 @@ class windows extends PanelMenu.Button {
 
 	destroy() {
         global.settings.disconnect(check);
-	global.settings.disconnect(box);
+	global.settings.disconnect(item);
         this.parent();
     }
 
