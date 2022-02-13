@@ -112,3 +112,4 @@ class Extension {
 function init(meta) {
     return new Extension(meta.uuid);
 }
+
