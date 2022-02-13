@@ -28,7 +28,7 @@ const Gio = imports.gi.Gio;
 const checkBox = imports.ui.checkBox;
 const Util = imports.misc.util;
 
-extensionPath = GLib.get_home_dir() + "/.local/share/gnome-shell/extensions/all-windows@ezix.org"
+extensionPath = GLib.get_home_dir() + "/.local/share/gnome-shell/extensions/ReopenWindiows@speedflyer689@gmail.com"
 
 let checkBoxFile = GLib.build_filenamev([extensionPath, "checked"]);
 let checkFile = Gio.File.new_for_path(checkBoxFile);
