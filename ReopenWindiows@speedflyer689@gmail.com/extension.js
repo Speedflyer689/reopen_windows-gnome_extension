@@ -27,21 +27,34 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const checkBox = imports.ui.checkBox;
 const Util = imports.misc.util;
+const ExtensionUtils = imports.misc.extensionUtils;
+let Me = ExtensionUtils.getCurrentExtension();
 
-extensionPath = GLib.get_home_dir() + "/.local/share/gnome-shell/extensions/ReopenWindiows@speedflyer689@gmail.com"
+let extensionFolderPath = Me.path;
 
-let checkBoxFile = GLib.build_filenamev([extensionPath, "checked"]);
+let checkBoxFile = GLib.build_filenamev([extensionFolderPath, "checked"]);
 let checkFile = Gio.File.new_for_path(checkBoxFile);
 
+
 function saveWindows() {
+    let openWindowsFile = Gio.File.new_for_path(GLib.build_filenamev([extensionFolderPath, "commands.sh"]));    
     let [success, content] = checkFile.load_contents(null);
     if (content == "false") {
-        let saveWindowsBash = extensionPath + "/saveWindows.sh";
+        let saveWindowsBash = extensionFolderPath + "/saveWindows.sh";
         Util.spawnCommandLine("bash " + saveWindowsBash);
+    }
+    else {
+        let [success, tag] = openWindowsFile.replace_contents(
+            "",
+            null,
+            false,
+            Gio.FileCreateFlags.REPLACE_DESTINATION,
+            null
+        );
     }
 }
 function openWindows() {
-    openWindowsBash = "commands.sh";
+    openWindowsBash = extensionFolderPath + "/commands.sh";
     Util.spawnCommandLine("bash " + openWindowsBash);
 }
 
@@ -56,62 +69,57 @@ function buttonPress() {
     saveWindows();
 }
 
-let check;
+var check;
 const windows = GObject.registerClass(
 class windows extends PanelMenu.Button {
 
 	_init() {
-		super._init(0.0, 'Reopen Windows checkbox');
-
-		this.actor.add_child(new St.Icon({ icon_name: 'view-grid-symbolic', style_class: 'system-status-icon' }));
+        super._init(0.0, 'Reopen Windows checkbox');
+        this.actor.add_child(new St.Icon({ icon_name: 'view-grid-symbolic', style_class: 'system-status-icon' }));
         let item = new PopupMenu.PopupMenuItem('');
         let box = new St.BoxLayout( { x_expand: true  } );
         check = new checkBox.CheckBox("Reopen Windows On Login");
         box.add(check);
         item.actor.add_actor(box);
         this.menu.addMenuItem(item);
-	item.actor.connect('button-release-event', saveWindows);
+        item.actor.connect('button-release-event', saveWindows);
         check.actor.connect('button-release-event', buttonPress);
 	}
 
-    
-
-
 	destroy() {
         global.settings.disconnect(check);
-	global.settings.disconnect(item);
+        global.settings.disconnect(item);
         this.parent();
     }
-
 });
 
 
 class Extension {
     constructor(uuid) {
         this._uuid = uuid;
+        
     }
 
     enable() {
         this._windows = new windows;
-            Main.panel.addToStatusArea(this._uuid, this._windows, -1);
-            let [success, content] = checkFile.load_contents(null);
-            if (content == "false") {
-                check.checked = true;
-            }
-            else {
-                check.checked = false;
-            }
-            if (check.checked) {
-                openWindows();
-            }
+        let [success, content] = checkFile.load_contents(null);
+        if (content == "false") {
+            check.checked = true;
+        }
+        else {
+            check.checked = false;
+        }
+        Main.panel.addToStatusArea(this._uuid, this._windows, -1);
     }
 
     disable() {
+        saveWindows();
         this._windows.destroy();
+        this._windows = null;
     }
 }
 
 function init(meta) {
+    openWindows();
     return new Extension(meta.uuid);
 }
-
